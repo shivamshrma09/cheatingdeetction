@@ -1,4 +1,5 @@
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 import os
 import tempfile
 from werkzeug.utils import secure_filename
@@ -7,6 +8,7 @@ from audio_analysis import AudioAnalysisPipeline
 from code_analysis import CodeAnalysisPipeline
 
 app = Flask(__name__)
+CORS(app)  # Enable CORS for all routes
 app.config['MAX_CONTENT_LENGTH'] = 100 * 1024 * 1024  # 100MB max file size
 
 ALLOWED_VIDEO_EXTENSIONS = {'mp4', 'avi', 'mov', 'mkv'}

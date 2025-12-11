@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Anti-Cheating System Test</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .form-group { margin: 15px 0; }
+        input, textarea, button { width: 100%; padding: 10px; margin: 5px 0; }
+        button { background: #007bff; color: white; border: none; cursor: pointer; }
+        .result { margin: 20px 0; padding: 15px; background: #f8f9fa; border-radius: 5px; }
+        .error { background: #f8d7da; color: #721c24; }
+        .success { background: #d4edda; color: #155724; }
+    </style>
+</head>
+<body>
+    <h1>Anti-Cheating AI System Test</h1>
+    
+    <h2>Interview Monitor</h2>
+    <form id="videoForm">
+        <div class="form-group">
+            <label>Video File:</label>
+            <input type="file" id="video" accept="video/*" required>
+        </div>
+        <div class="form-group">
+            <label>Reference Image:</label>
+            <input type="file" id="reference_image" accept="image/*" required>
+        </div>
+        <button type="submit">Analyze Video</button>
+    </form>
+    <div id="videoResult" class="result" style="display:none;"></div>
+    
+    <h2>Post Interview Analysis</h2>
+    <form id="audioForm">
+        <div class="form-group">
+            <label>Audio File:</label>
+            <input type="file" id="audio" accept="audio/*" required>
+        </div>
+        <div class="form-group">
+            <label>Code:</label>
+            <textarea id="code_text" rows="10" placeholder="Enter code here..." required></textarea>
+        </div>
+        <button type="submit">Analyze Code & Audio</button>
+    </form>
+    <div id="audioResult" class="result" style="display:none;"></div>
+
+    <script>
+        const API_BASE = 'https://shivaaaahdjdnd-anticheating.hf.space'; // Replace with Railway URL after deployment
+        
+        async function makeRequest(endpoint, formData) {
+            try {
+                const response = await fetch(`${API_BASE}${endpoint}`, {
+                    method: 'POST',
+                    body: formData,
+                    mode: 'cors'
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                return await response.json();
+            } catch (error) {
+                throw new Error(`Request failed: ${error.message}`);
+            }
+        }
+        
+        document.getElementById('videoForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const resultDiv = document.getElementById('videoResult');
+            
+            try {
+                const formData = new FormData();
+                formData.append('video', document.getElementById('video').files[0]);
+                formData.append('reference_image', document.getElementById('reference_image').files[0]);
+                
+                resultDiv.innerHTML = 'Processing...';
+                resultDiv.className = 'result';
+                resultDiv.style.display = 'block';
+                
+                const result = await makeRequest('/interview-monitor', formData);
+                
+                resultDiv.innerHTML = `<h3>Success!</h3><pre>${JSON.stringify(result, null, 2)}</pre>`;
+                resultDiv.className = 'result success';
+            } catch (error) {
+                resultDiv.innerHTML = `<h3>Error</h3><p>${error.message}</p>`;
+                resultDiv.className = 'result error';
+            }
+        });
+        
+        document.getElementById('audioForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const resultDiv = document.getElementById('audioResult');
+            
+            try {
+                const formData = new FormData();
+                formData.append('audio', document.getElementById('audio').files[0]);
+                formData.append('code_text', document.getElementById('code_text').value);
+                
+                resultDiv.innerHTML = 'Processing...';
+                resultDiv.className = 'result';
+                resultDiv.style.display = 'block';
+                
+                const result = await makeRequest('/post-interview-analysis', formData);
+                
+                resultDiv.innerHTML = `<h3>Success!</h3><pre>${JSON.stringify(result, null, 2)}</pre>`;
+                resultDiv.className = 'result success';
+            } catch (error) {
+                resultDiv.innerHTML = `<h3>Error</h3><p>${error.message}</p>`;
+                resultDiv.className = 'result error';
+            }
+        });
+    </script>
+</body>
+</html>
